@@ -172,3 +172,28 @@ class TransactionSerializer(serializers.ModelSerializer):
             customer.save()
         
         return transaction
+
+
+class PaymentRequestSerializer(serializers.ModelSerializer):
+    """Payment request serializer"""
+    customer_name = serializers.SerializerMethodField()
+    cashier_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = PaymentRequest
+        fields = [
+            'id', 'request_id', 'customer', 'customer_name',
+            'cashier', 'cashier_name', 'amount', 'method',
+            'status', 'created_at', 'updated_at',
+        ]
+        read_only_fields = ['id', 'request_id', 'created_at', 'updated_at']
+
+    def get_customer_name(self, obj):
+        if obj.customer and obj.customer.user:
+            return obj.customer.user.get_full_name()
+        return None
+
+    def get_cashier_name(self, obj):
+        if obj.cashier:
+            return obj.cashier.get_full_name()
+        return None

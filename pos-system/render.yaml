@@ -5,13 +5,13 @@
 # Repo root is: POS_Billing/
 # Services are inside:  POS_Billing/pos-system/
 #
-# Deploy order: 1) PostgreSQL  2) Django  3) Spring Boot  4) React
+# Deploy order: 1) PostgreSQL  2) Django  3) React
 ##############################################################################
 
 services:
 
   # ─────────────────────────────────────────────────────────────────────────
-  # 1. Django Backend (Web Service)
+  # 1. Django Backend (Web Service) — Now handling ALL API requests (fully Python)
   # ─────────────────────────────────────────────────────────────────────────
   - type: web
     name: pos-django
@@ -26,7 +26,7 @@ services:
       - key: DEBUG
         value: "False"
       - key: ALLOWED_HOSTS
-        value: pos-billing-bjyl.onrender.com
+        value: pos-django.onrender.com,pos-frontend.onrender.com
       - key: DATABASE_URL
         fromDatabase:
           name: pos-postgres
@@ -37,34 +37,13 @@ services:
         value: https://pos-frontend.onrender.com
       - key: PYTHON_VERSION
         value: "3.11.0"
-
-  # ─────────────────────────────────────────────────────────────────────────
-  # 2. Spring Boot Backend (Docker — Render has no native Java runtime)
-  # ─────────────────────────────────────────────────────────────────────────
-  - type: web
-    name: pos-springboot
-    runtime: docker
-    rootDir: pos-system/backend-springboot
-    dockerfilePath: ./Dockerfile
-    plan: free
-    envVars:
-      - key: DATABASE_URL
-        fromDatabase:
-          name: pos-postgres
-          property: connectionString
-      - key: JWT_SECRET_KEY
-        sync: false
-      - key: DJANGO_API_URL
-        value: https://pos-billing-bjyl.onrender.com
-      - key: CORS_ALLOWED_ORIGINS
-        value: https://pos-frontend.onrender.com
       - key: EMAIL_HOST_USER
         sync: false
       - key: EMAIL_HOST_PASSWORD
         sync: false
 
   # ─────────────────────────────────────────────────────────────────────────
-  # 3. React Frontend (Static Site)
+  # 2. React Frontend (Static Site)
   # ─────────────────────────────────────────────────────────────────────────
   - type: static_site
     name: pos-frontend
@@ -74,9 +53,7 @@ services:
     plan: free
     envVars:
       - key: VITE_API_URL
-        value: https://pos-springboot-qr0d.onrender.com/api
-      - key: VITE_DJANGO_URL
-        value: https://pos-billing-bjyl.onrender.com
+        value: https://pos-django.onrender.com/api
     routes:
       - type: rewrite
         source: /*

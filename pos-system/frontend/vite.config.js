@@ -9,16 +9,16 @@ export default defineConfig(({ mode }) => {
         server: {
             port: 5174,
             proxy: {
-                // In development, proxy /api calls to the local Spring Boot backend
+                // In development, proxy /api calls to local Django backend on :8000
                 '/api': {
-                    target: env.VITE_API_URL ? env.VITE_API_URL.replace('/api', '') : 'http://localhost:8081',
+                    target: 'http://localhost:8000',
                     changeOrigin: true,
                 }
             }
         },
         build: {
             outDir: 'dist',
-            sourcemap: false,    // Disable source maps in production for security
+            sourcemap: false,
             chunkSizeWarningLimit: 1000,
             rollupOptions: {
                 output: {

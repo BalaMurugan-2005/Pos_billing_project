@@ -276,3 +276,40 @@ class TransactionItem(models.Model):
     class Meta:
         db_table = 'transaction_items'
         ordering = ['id']
+
+
+class PaymentRequest(models.Model):
+    """Payment request model — replaces Spring Boot PaymentRequest entity"""
+    STATUS_CHOICES = (
+        ('PENDING', 'Pending'),
+        ('COMPLETED', 'Completed'),
+        ('DECLINED', 'Declined'),
+        ('EXPIRED', 'Expired'),
+    )
+
+    request_id = models.CharField(max_length=100, unique=True, blank=True)
+    customer = models.ForeignKey(
+        Customer, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='payment_requests'
+    )
+    cashier = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True,
+        related_name='cashier_payment_requests'
+    )
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    method = models.CharField(max_length=50)  # CARD, UPI, CASH, etc.
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if not self.request_id:
+            self.request_id = 'PAY-' + uuid.uuid4().hex.upper()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.request_id} — {self.amount} [{self.status}]"
+
+    class Meta:
+        db_table = 'payment_requests'
+        ordering = ['-created_at']

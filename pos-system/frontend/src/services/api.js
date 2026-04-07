@@ -1,14 +1,15 @@
 import axios from 'axios';
 
-// In production: VITE_API_URL=https://your-springboot.onrender.com/api
-// In development: falls back to '/api' which is proxied by vite.config.js to localhost:8081
+// Single backend: Django REST API (no more Spring Boot)
+// Dev: VITE_API_URL=http://localhost:8000/api  (proxy via vite.config.js)
+// Prod: VITE_API_URL=https://pos-django.onrender.com/api
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
 });
 
-// Request interceptor to add JWT token
+// Request interceptor — attach JWT token
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -17,27 +18,21 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Track if a redirect is already in progress to avoid redirect loops
-// caused by background polling (e.g., payment-requests polling every 3s)
+// Track if a redirect is already in progress (avoid loops from background polling)
 let isRedirectingToLogin = false;
 
-// Response interceptor for error handling
+// Response interceptor — handle 401
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Only redirect once even if multiple concurrent requests fail
       if (!isRedirectingToLogin) {
         isRedirectingToLogin = true;
-        // Token is invalid or expired — clear auth state
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        // Small delay to let in-flight requests settle before navigating
         setTimeout(() => {
           window.location.href = '/login';
           isRedirectingToLogin = false;
