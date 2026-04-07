@@ -34,7 +34,7 @@ services:
       - key: JWT_SECRET_KEY
         sync: false
       - key: CORS_ALLOWED_ORIGINS
-        value: https://pos-frontend.onrender.com
+        value: https://pos-frontend.onrender.com,https://pos-frontend-fbaz.onrender.com
       - key: PYTHON_VERSION
         value: "3.11.0"
       - key: EMAIL_HOST_USER
