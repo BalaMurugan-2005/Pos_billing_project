@@ -90,32 +90,43 @@ TEMPLATES = [
 WSGI_APPLICATION = 'pos_system.wsgi.application'
 
 # ─────────────────────────────────────────────────────────────────────────────
-# DATABASE — PostgreSQL via DATABASE_URL
-# Render provides DATABASE_URL automatically for managed PostgreSQL.
-# Local dev: set DATABASE_URL=postgresql://user:pass@localhost:5432/pos_system
+# DATABASE — SQLite for local development, PostgreSQL for production
+# Local dev: Uses SQLite (auto-created in db.sqlite3)
+# Production: Uses PostgreSQL via DATABASE_URL from Render
 # ─────────────────────────────────────────────────────────────────────────────
-DATABASE_URL = os.getenv('DATABASE_URL')
 
-if DATABASE_URL:
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=DATABASE_URL,
-            conn_max_age=600,
-            conn_health_checks=True,
-        )
-    }
-else:
-    # Fallback for local development (individual env vars)
+if DEBUG:
+    # Local development: Use SQLite
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv('DB_NAME', 'pos_system'),
-            'USER': os.getenv('DB_USER', 'postgres'),
-            'PASSWORD': os.getenv('DB_PASSWORD', ''),
-            'HOST': os.getenv('DB_HOST', 'localhost'),
-            'PORT': os.getenv('DB_PORT', '5432'),
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
+else:
+    # Production: Use PostgreSQL via DATABASE_URL
+    DATABASE_URL = os.getenv('DATABASE_URL')
+    
+    if DATABASE_URL:
+        DATABASES = {
+            'default': dj_database_url.config(
+                default=DATABASE_URL,
+                conn_max_age=600,
+                conn_health_checks=True,
+            )
+        }
+    else:
+        # Fallback (individual env vars for PostgreSQL)
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': os.getenv('DB_NAME', 'pos_system'),
+                'USER': os.getenv('DB_USER', 'postgres'),
+                'PASSWORD': os.getenv('DB_PASSWORD', ''),
+                'HOST': os.getenv('DB_HOST', 'localhost'),
+                'PORT': os.getenv('DB_PORT', '5432'),
+            }
+        }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [

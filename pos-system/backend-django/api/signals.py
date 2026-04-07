@@ -9,13 +9,13 @@ User = get_user_model()
 
 @receiver(post_save, sender=User)
 def create_customer_profile(sender, instance, created, **kwargs):
-    """Create customer profile when user with role 'customer' is created"""
-    if created and instance.role == 'customer':
+    """Create customer profile when user with role 'ROLE_CUSTOMER' is created"""
+    if created and instance.role == 'ROLE_CUSTOMER':
         Customer.objects.create(user=instance)
         logger.info(f"Customer profile created for user: {instance.email}")
 
 @receiver(post_save, sender=User)
 def save_customer_profile(sender, instance, **kwargs):
     """Save customer profile when user is saved"""
-    if instance.role == 'customer' and hasattr(instance, 'customer_profile'):
+    if instance.role == 'ROLE_CUSTOMER' and hasattr(instance, 'customer_profile'):
         instance.customer_profile.save()
