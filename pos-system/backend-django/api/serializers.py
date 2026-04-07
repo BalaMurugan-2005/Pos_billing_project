@@ -20,19 +20,33 @@ class UserSerializer(serializers.ModelSerializer):
 class UserCreateSerializer(serializers.ModelSerializer):
     """User creation serializer"""
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
-    password2 = serializers.CharField(write_only=True, required=True)
-    
+    password2 = serializers.CharField(write_only=True, required=False)  # optional: frontend validates client-side
+    name = serializers.CharField(write_only=True, required=False, default='')  # frontend sends 'name'
+
     class Meta:
         model = User
-        fields = ['username', 'password', 'password2', 'email', 'first_name', 'last_name', 'phone', 'role']
-    
+        fields = ['username', 'password', 'password2', 'name', 'email', 'first_name', 'last_name', 'phone', 'role']
+
     def validate(self, attrs):
-        if attrs['password'] != attrs['password2']:
+        password2 = attrs.get('password2')
+        if password2 and attrs['password'] != password2:
             raise serializers.ValidationError({"password": "Password fields didn't match."})
+
+        # Split 'name' → first_name / last_name if provided
+        name = attrs.pop('name', '')
+        if name and not attrs.get('first_name'):
+            parts = name.strip().split(' ', 1)
+            attrs['first_name'] = parts[0]
+            attrs['last_name'] = parts[1] if len(parts) > 1 else ''
+
+        # Normalise role to lowercase
+        if 'role' in attrs:
+            attrs['role'] = attrs['role'].lower()
+
         return attrs
-    
+
     def create(self, validated_data):
-        validated_data.pop('password2')
+        validated_data.pop('password2', None)
         user = User.objects.create_user(**validated_data)
         return user
 

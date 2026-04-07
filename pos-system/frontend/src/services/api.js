@@ -9,6 +9,14 @@ const api = axios.create({
   baseURL: API_BASE_URL,
 });
 
+// Auto-append trailing slash for Django compatibility (APPEND_SLASH=True by default).
+// Without this, Django sends a 301 redirect which browsers follow as GET → causes 405 errors.
+api.interceptors.request.use((config) => {
+  if (config.url && !config.url.endsWith('/') && !config.url.includes('?')) {
+    config.url = config.url + '/';
+  }
+  return config;
+});
 // Request interceptor — attach JWT token
 api.interceptors.request.use(
   (config) => {

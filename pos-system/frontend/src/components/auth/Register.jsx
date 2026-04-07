@@ -86,7 +86,11 @@ const Register = () => {
       toast.success('Registration successful! Please login.');
       navigate('/login');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Registration failed');
+      const data = error.response?.data;
+      const msg = typeof data === 'string'
+        ? data
+        : data?.detail || data?.message || data?.username?.[0] || data?.email?.[0] || data?.password?.[0] || 'Registration failed';
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
