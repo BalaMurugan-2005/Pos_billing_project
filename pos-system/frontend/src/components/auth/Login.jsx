@@ -110,15 +110,7 @@ const Login = () => {
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            Don't have an account?{' '}
-            <button
-              onClick={() => navigate('/register')}
-              className="text-primary-600 hover:text-primary-700 font-medium hover:underline cursor-pointer"
-            >
-              Register here
-            </button>
-          </p>
+
           <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Demo Credentials (Password: Bala9677540588#):
