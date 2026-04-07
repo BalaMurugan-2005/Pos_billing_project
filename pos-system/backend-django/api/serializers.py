@@ -13,9 +13,20 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'full_name', 
                   'phone', 'role', 'profile_picture', 'is_active', 'date_joined', 'last_login']
         read_only_fields = ['id', 'date_joined', 'last_login']
-    
+
     def get_full_name(self, obj):
         return obj.get_full_name()
+
+    def to_representation(self, instance):
+        """Map ROLE_* to frontend roles"""
+        data = super().to_representation(instance)
+        role_map = {
+            'ROLE_ADMIN': 'admin',
+            'ROLE_CASHIER': 'cashier',
+            'ROLE_CUSTOMER': 'customer',
+        }
+        data['role'] = role_map.get(instance.role, 'customer')
+        return data
 
 class UserCreateSerializer(serializers.ModelSerializer):
     """User creation serializer"""
