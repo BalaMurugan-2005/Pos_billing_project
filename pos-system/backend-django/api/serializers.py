@@ -22,6 +22,8 @@ class UserCreateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
     password2 = serializers.CharField(write_only=True, required=False)  # optional: frontend validates client-side
     name = serializers.CharField(write_only=True, required=False, default='')  # frontend sends 'name'
+    role = serializers.CharField(required=False, default='customer')  # Accept any string, validate in validate()
+    phone = serializers.CharField(required=False, allow_blank=True)  # Make phone optional
 
     class Meta:
         model = User
@@ -39,9 +41,19 @@ class UserCreateSerializer(serializers.ModelSerializer):
             attrs['first_name'] = parts[0]
             attrs['last_name'] = parts[1] if len(parts) > 1 else ''
 
-        # Normalise role to lowercase
+        # Normalise role to match ROLE_CHOICES (accept lowercase, convert to uppercase)
         if 'role' in attrs:
-            attrs['role'] = attrs['role'].lower()
+            role = attrs['role'].lower().strip()
+            role_map = {
+                'admin': 'ROLE_ADMIN',
+                'cashier': 'ROLE_CASHIER',
+                'customer': 'ROLE_CUSTOMER',
+            }
+            attrs['role'] = role_map.get(role, 'ROLE_CUSTOMER')
+
+        # Remove phone if empty (optional field)
+        if not attrs.get('phone'):
+            attrs.pop('phone', None)
 
         return attrs
 
@@ -60,14 +72,26 @@ class LoginSerializer(serializers.Serializer):
         password = data.get('password')
         
         if username and password:
-            user = authenticate(request=self.context.get('request'), 
-                              username=username, password=password)
+            user = None
+            # Try to resolve actual user model based on email or username
+            try:
+                if '@' in username:
+                    user_obj = User.objects.get(email=username)
+                else:
+                    user_obj = User.objects.get(username=username)
+                
+                # Use authenticate with the correct kwarg (email, which is USERNAME_FIELD)
+                user = authenticate(request=self.context.get('request'), 
+                                  email=user_obj.email, password=password)
+            except User.DoesNotExist:
+                pass
+
             if not user:
-                raise serializers.ValidationError("Invalid username or password.")
+                raise serializers.ValidationError({"message": "Invalid username or password."})
             if not user.is_active:
-                raise serializers.ValidationError("User account is disabled.")
+                raise serializers.ValidationError({"message": "User account is disabled."})
         else:
-            raise serializers.ValidationError("Must include username and password.")
+            raise serializers.ValidationError({"message": "Must include username and password."})
         
         data['user'] = user
         return data
