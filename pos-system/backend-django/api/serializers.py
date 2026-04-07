@@ -81,28 +81,26 @@ class LoginSerializer(serializers.Serializer):
     def validate(self, data):
         username = data.get('username')
         password = data.get('password')
-        
         if username and password:
-            user = None
-            # Try to resolve actual user model based on email or username
-            try:
-                if '@' in username:
-                    user_obj = User.objects.get(email=username)
-                else:
+            # Try authenticating directly with 'email' (since it's the USERNAME_FIELD)
+            user = authenticate(request=self.context.get('request'), 
+                              email=username, password=password)
+            
+            # If failed, it might be a username string instead of email
+            if not user:
+                try:
                     user_obj = User.objects.get(username=username)
-                
-                # Use authenticate with the correct kwarg (email, which is USERNAME_FIELD)
-                user = authenticate(request=self.context.get('request'), 
-                                  email=user_obj.email, password=password)
-            except User.DoesNotExist:
-                pass
+                    user = authenticate(request=self.context.get('request'), 
+                                      email=user_obj.email, password=password)
+                except User.DoesNotExist:
+                    pass
 
             if not user:
-                raise serializers.ValidationError({"message": "Invalid username or password."})
+                raise serializers.ValidationError({"message": "Invalid credentials (check username/email and password)."})
             if not user.is_active:
-                raise serializers.ValidationError({"message": "User account is disabled."})
+                raise serializers.ValidationError({"message": "This account has been disabled."})
         else:
-            raise serializers.ValidationError({"message": "Must include username and password."})
+            raise serializers.ValidationError({"message": "Please provide both username/email and password."})
         
         data['user'] = user
         return data

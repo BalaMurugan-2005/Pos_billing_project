@@ -18,7 +18,7 @@ services:
     runtime: python
     rootDir: pos-system/backend-django
     buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate --fake-initial --noinput && python manage.py seed_demo_users
-    startCommand: gunicorn pos_system.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+    startCommand: bash start.sh
     plan: free
     envVars:
       - key: DJANGO_SECRET_KEY
