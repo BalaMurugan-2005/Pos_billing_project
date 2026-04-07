@@ -26,7 +26,7 @@ const CustomerRegister = () => {
         }
         setLoading(true);
         try {
-            await api.post('/auth/register', { ...form, role: 'CUSTOMER' });
+            await api.post('/auth/register/', { ...form, role: 'customer' });
             toast.success('Account created! Please log in.');
             navigate('/login');
         } catch (error) {
