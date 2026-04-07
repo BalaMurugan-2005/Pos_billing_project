@@ -45,7 +45,7 @@ services:
   # ─────────────────────────────────────────────────────────────────────────
   # 2. React Frontend (Static Site)
   # ─────────────────────────────────────────────────────────────────────────
-  - type: static_site
+  - type: web
     name: pos-frontend
     rootDir: pos-system/frontend
     buildCommand: npm install && chmod +x node_modules/.bin/vite && npm run build
