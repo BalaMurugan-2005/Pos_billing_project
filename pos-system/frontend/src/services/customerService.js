@@ -2,32 +2,32 @@ import api from './api';
 
 export const customerService = {
     getCustomers: async (params = {}) => {
-        const response = await api.get('/customers', { params });
-        return response.data.content || response.data;
+        const response = await api.get('/customers/', { params });
+        return response.data.results || response.data.content || response.data;
     },
 
     getCustomerById: async (id) => {
-        const response = await api.get(`/customers/${id}`);
+        const response = await api.get(`/customers/${id}/`);
         return response.data;
     },
 
     getCustomerByLoyalty: async (loyaltyNumber) => {
-        const response = await api.get(`/customers/loyalty/${loyaltyNumber}`);
+        const response = await api.get(`/customers/loyalty/${loyaltyNumber}/`);
         return response.data;
     },
 
     getCustomerByUserId: async (userId) => {
-        const response = await api.get(`/customers/user/${userId}`);
+        const response = await api.get(`/customers/user/${userId}/`);
         return response.data;
     },
 
     createCustomer: async (customerData) => {
-        const response = await api.post('/customers', customerData);
+        const response = await api.post('/customers/', customerData);
         return response.data;
     },
 
     updateCustomer: async (id, customerData) => {
-        const response = await api.put(`/customers/${id}`, customerData);
+        const response = await api.put(`/customers/${id}/`, customerData);
         return response.data;
     },
 
