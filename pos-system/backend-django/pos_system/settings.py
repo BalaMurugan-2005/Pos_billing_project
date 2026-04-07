@@ -178,9 +178,13 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
 ] + _cors_extra
 
+# Allow ALL *.onrender.com subdomains (handles Render's auto-generated URL suffixes like -fbaz)
 CORS_ALLOWED_ORIGIN_REGEXES = [
-    r"^https://.*\.onrender\.com$",
+    r"^https://[\w-]+\.onrender\.com$",
 ]
+
+# Apply CORS headers to all routes
+CORS_URLS_REGEX = r'^.*$'
 
 CORS_ALLOW_CREDENTIALS = True
 
