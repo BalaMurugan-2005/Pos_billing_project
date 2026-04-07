@@ -164,11 +164,12 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ─────────────────────────────────────────────────────────────────────────────
-# CORS — allow both localhost (dev) and production React frontend
-# CORS_ALLOWED_ORIGIN_REGEXES picks up any *.onrender.com URL automatically
+# CORS — allow all origins (API is protected by JWT; CORS is a browser restriction)
 # ─────────────────────────────────────────────────────────────────────────────
 _cors_raw = os.getenv('CORS_ALLOWED_ORIGINS', '')
 _cors_extra = [o.strip() for o in _cors_raw.split(',') if o.strip()]
+
+CORS_ALLOW_ALL_ORIGINS = True   # Allow all — endpoints are JWT-protected
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
