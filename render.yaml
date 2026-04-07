@@ -45,8 +45,9 @@ services:
   # ─────────────────────────────────────────────────────────────────────────
   # 2. React Frontend (Static Site)
   # ─────────────────────────────────────────────────────────────────────────
-  - type: static
+  - type: web
     name: pos-frontend
+    runtime: static
     rootDir: pos-system/frontend
     buildCommand: npm install && npm run build
     publishPath: dist
