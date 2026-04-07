@@ -17,8 +17,8 @@ export const productService = {
   },
 
   searchProducts: async (query) => {
-    const response = await api.get('/products/search', { params: { q: query } });
-    return response.data.content || response.data;
+    const response = await api.get('/products/', { params: { search: query } });
+    return response.data.results || response.data;
   },
 
   createProduct: async (productData) => {
@@ -41,9 +41,12 @@ export const productService = {
     return response.data;
   },
 
-  updateInventory: async (productId, quantity) => {
-    const response = await api.patch(`/products/${productId}/stock`, null, {
-      params: { quantity, type: 'SET' }
+  updateInventory: async (productId, quantity, type = 'adjustment', reason = 'Manual update') => {
+    const response = await api.post('/inventory/', {
+      product: productId,
+      quantity_change: quantity,
+      movement_type: type,
+      reason: reason
     });
     return response.data;
   }

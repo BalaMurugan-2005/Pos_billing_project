@@ -10,6 +10,9 @@ urlpatterns = [
     path('auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('auth/profile/', views.UserProfileView.as_view(), name='profile'),
     path('auth/verify/', views.VerifyTokenView.as_view(), name='token_verify'),
+    path('users/', views.UserListView.as_view(), name='user-list'),
+    path('users/<int:pk>/', views.UserDetailView.as_view(), name='user-detail'),
+    path('users/cashiers/', views.CashierListView.as_view(), name='cashier-list'),
 
     # ── Products ────────────────────────────────────────────────────────────
     path('products/', views.ProductListView.as_view(), name='product-list'),

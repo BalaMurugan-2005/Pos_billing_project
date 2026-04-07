@@ -57,6 +57,28 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         return self.request.user
 
+# User Management Views (Admin only)
+class UserListView(generics.ListCreateAPIView):
+    """List and create users (Admin only)"""
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['username', 'email', 'first_name', 'last_name']
+    ordering_fields = ['username', 'date_joined']
+
+class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """Retrieve, update, delete user (Admin only)"""
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
+
+class CashierListView(generics.ListAPIView):
+    """List all cashiers (Admin/Cashier only)"""
+    queryset = User.objects.filter(role='ROLE_CASHIER')
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
 import jwt
 from django.conf import settings
 

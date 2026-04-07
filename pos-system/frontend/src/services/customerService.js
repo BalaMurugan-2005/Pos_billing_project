@@ -32,7 +32,7 @@ export const customerService = {
     },
 
     addPoints: async (id, points) => {
-        const response = await api.post(`/customers/${id}/points`, null, { params: { points } });
+        const response = await api.post(`/customers/${id}/add-points/`, { points });
         return response.data;
     }
 };
